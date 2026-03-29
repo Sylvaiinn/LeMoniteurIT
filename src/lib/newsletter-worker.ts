@@ -43,21 +43,16 @@ export async function runNewsletterWorker(): Promise<{
   });
   const subject = `Le Moniteur IT — Veille du ${today}`;
 
-  // 4. Render HTML email
+  // 4. Prepare shared content
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://veilles.sl-information.fr";
-  const html = renderNewsletterHtml({
-    intro,
-    articles: topArticles.map((a) => ({
-      titreEditorial: a.titreEditorial || a.title,
-      url: a.url,
-      source: a.source,
-      categorie: a.categorie,
-      pointsCles: (a.summary as { points_cles?: string[] })?.points_cles || [],
-      scoreImportance: a.scoreImportance,
-    })),
-    siteUrl,
-    date: today,
-  });
+  const articleData = topArticles.map((a) => ({
+    titreEditorial: a.titreEditorial || a.title,
+    url: a.url,
+    source: a.source,
+    categorie: a.categorie,
+    pointsCles: (a.summary as { points_cles?: string[] })?.points_cles || [],
+    scoreImportance: a.scoreImportance,
+  }));
 
   // 5. Get active subscribers
   const subscribers = await prisma.subscriber.findMany({
@@ -69,26 +64,28 @@ export async function runNewsletterWorker(): Promise<{
     console.log("[Newsletter Worker] No active subscribers.");
   }
 
-  // 6. Send emails in batches of 50
+  // 6. Send one email per subscriber with personalized unsubscribe link
   const fromEmail = process.env.RESEND_FROM_EMAIL || "Le Moniteur IT <noreply@sl-information.fr>";
-  const batchSize = 50;
 
-  for (let i = 0; i < subscribers.length; i += batchSize) {
-    const batch = subscribers.slice(i, i + batchSize);
+  for (const subscriber of subscribers) {
+    const unsubscribeUrl = `${siteUrl}/api/unsubscribe?email=${encodeURIComponent(subscriber.email)}`;
+    const html = renderNewsletterHtml({ intro, articles: articleData, siteUrl, date: today, unsubscribeUrl });
     try {
       await getResend().emails.send({
         from: fromEmail,
-        to: batch.map((s) => s.email),
+        to: subscriber.email,
         subject,
         html,
+        headers: {
+          "List-Unsubscribe": `<${unsubscribeUrl}>`,
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        },
       });
-      console.log(
-        `[Newsletter Worker] Sent batch ${Math.floor(i / batchSize) + 1}`
-      );
     } catch (err) {
-      console.error("[Newsletter Worker] Failed to send batch:", err);
+      console.error(`[Newsletter Worker] Failed to send to ${subscriber.email}:`, err);
     }
   }
+  console.log(`[Newsletter Worker] Sent to ${subscribers.length} subscribers.`);
 
   // 7. Save newsletter record
   await prisma.newsletter.create({

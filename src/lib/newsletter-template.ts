@@ -12,6 +12,7 @@ interface NewsletterData {
   articles: NewsletterArticle[];
   siteUrl: string;
   date: string;
+  unsubscribeUrl: string;
 }
 
 export function renderNewsletterHtml(data: NewsletterData): string {
@@ -114,6 +115,9 @@ export function renderNewsletterHtml(data: NewsletterData): string {
               </p>
               <p style="font-family: Inter, Arial, sans-serif; font-size: 10px; color: #666; margin: 8px 0 0 0;">
                 Vous recevez cet email car vous êtes inscrit à la newsletter du Moniteur IT.
+              </p>
+              <p style="font-family: Inter, Arial, sans-serif; font-size: 10px; color: #555; margin: 8px 0 0 0;">
+                <a href="${data.unsubscribeUrl}" style="color: #777; text-decoration: underline;">Se désabonner</a>
               </p>
             </td>
           </tr>
