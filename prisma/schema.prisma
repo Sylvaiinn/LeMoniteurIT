@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Article {
+  id              String   @id @default(cuid())
+  guid            String   @unique
+  title           String
+  titreEditorial  String?
+  url             String
+  source          String
+  summary         Json?    // { points_cles: string[] }
+  scoreImportance Int      @default(0)
+  categorie       String   @default("IT") // "IT" | "IA"
+  imageUrl        String?
+  publishedAt     DateTime
+  createdAt       DateTime @default(now())
+  clusterId       String?
+
+  @@index([scoreImportance(sort: Desc)])
+  @@index([publishedAt(sort: Desc)])
+  @@index([categorie])
+  @@index([clusterId])
+}
+
+model Subscriber {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  active         Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  unsubscribedAt DateTime?
+}
+
+model Newsletter {
+  id             String   @id @default(cuid())
+  subject        String
+  introSynthesis String   @db.Text
+  sentAt         DateTime @default(now())
+  articleCount   Int      @default(0)
+}
+
+model MoodEntry {
+  id           String   @id @default(cuid())
+  editorial    String   @db.Text
+  weatherLevel String   @default("CALM") // "CALM" | "AGITATED" | "STORM"
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+}

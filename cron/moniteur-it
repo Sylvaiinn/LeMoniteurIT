@@ -1,0 +1,20 @@
+# Le Moniteur IT — Cron Configuration
+# Place this file at /etc/cron.d/moniteur-it on the Debian host
+#
+# Prerequisites:
+#   - Set CRON_SECRET in /etc/environment or inline below
+#   - Ensure curl is installed: apt install curl
+#
+# Logs go to /var/log/moniteur-it-cron.log
+
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# ── RSS Feed Fetch (every 30 minutes) ──
+*/30 * * * * root curl -sf -X POST -H "Authorization: Bearer CHANGE_ME_CRON_SECRET" http://localhost:3000/api/cron/fetch-rss >> /var/log/moniteur-it-cron.log 2>&1
+
+# ── Mood Editorial (every 6 hours) ──
+0 */6 * * * root curl -sf -X POST -H "Authorization: Bearer CHANGE_ME_CRON_SECRET" http://localhost:3000/api/cron/mood >> /var/log/moniteur-it-cron.log 2>&1
+
+# ── Newsletter (every 48 hours at 8:00 AM) ──
+0 8 */2 * * root curl -sf -X POST -H "Authorization: Bearer CHANGE_ME_CRON_SECRET" http://localhost:3000/api/cron/newsletter >> /var/log/moniteur-it-cron.log 2>&1
