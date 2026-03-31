@@ -17,19 +17,30 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Le Moniteur IT — Veille Technologique",
+  title: "Le Moniteur IT — Veille Technologique par Sylvain LECLERC",
   description:
-    "L'essentiel du flux, la clarté du journal. Veille IT & IA en temps réel, synthétisée par intelligence artificielle.",
+    "Veille technologique IT & IA de Sylvain LECLERC. Actualités cybersécurité, cloud, DevOps et réseaux synthétisées en temps réel par intelligence artificielle.",
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL || "https://veilles.sl-information.fr"
   ),
+  keywords: [
+    "Sylvain LECLERC",
+    "veille technologique",
+    "cybersécurité",
+    "cloud",
+    "DevOps",
+    "IT",
+    "intelligence artificielle",
+  ],
   openGraph: {
-    title: "Le Moniteur IT",
-    description: "L'essentiel du flux, la clarté du journal.",
+    title: "Le Moniteur IT — Veille Technologique par Sylvain LECLERC",
+    description: "Veille IT & IA de Sylvain LECLERC. L'essentiel du flux, la clarté du journal.",
     siteName: "Le Moniteur IT",
+    url: "https://veilles.sl-information.fr",
     locale: "fr_FR",
     type: "website",
   },
+  alternates: { canonical: "https://veilles.sl-information.fr" },
   robots: { index: true, follow: true },
 };
 
